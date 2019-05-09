@@ -14,7 +14,7 @@ if (!isset($_SESSION["user_id"]))
 date_default_timezone_set('Europe/Copenhagen');
 
 require_once __DIR__."/libraries/MySQLi/MysqliDb.php";
-$db = new MysqliDb (HOST, USERNAME, PASS, DB);
+$db = new MysqliDb ('localhost', 'gardin', 'L9fnnvbuxVBl6YN5', 'gardin');
 
 $user = null;
 if ($_SESSION["logged_in"]) {
