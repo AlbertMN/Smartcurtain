@@ -55,7 +55,8 @@ String deviceIP
        ,backupWifiSSID
        ,backupWifiPass
        
-       ,rollDirection;
+       ,rollDirection
+       ,lastKnownRollDirection;
 
 
 /*Soft AP*/
@@ -71,7 +72,7 @@ const String software_version = "v0.0.1"
              ,api_key = "4d9a4cfb-3b8f-482e-9c88-f0d6d0923d8f";
 
 const int courtain_id = 1;
-const char* network_name = "Smart Gardin #1";
+const char* network_name = "Smart Curtain #1";
 
 const bool debug = true
            ,doSSL = false;
@@ -167,7 +168,7 @@ void loop() {
 }
 
 void StartRolling() {
-  //if (!isRolling) {
+  if (!isRolling || rollDirection != lastKnownRollDirection) {
     if (!hasObstacle) {
       if (rollDirection == "down") {
         if (!IsBottom()) {
@@ -190,12 +191,13 @@ void StartRolling() {
 
       if (isRolling) {
         debugLog("Start roll " + rollDirection);
+        lastKnownRollDirection = rollDirection;
       }
     } else {
       ObstacleFound();
       debugLog("Could not start roll; obstacle detected");
     }
-  //}
+  }
 }
 
 void StopRolling() {

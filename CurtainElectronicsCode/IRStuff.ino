@@ -1,3 +1,5 @@
+//Made for IR-controller integration - dropped, and no longer supported. Only for testing purposes
+
 /*#include <IRrecv.h>
 #include <IRremoteESP8266.h>
 

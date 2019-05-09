@@ -13,6 +13,7 @@ void APSetup() {
 }
 
 void prepareSetup() {
+  Serial.println("Preparing wifi connect...");
   if (prepare_wifi_connect()) {
     //Has WiFi in Eeprom - WiFi connected
 
@@ -87,17 +88,23 @@ bool prepare_wifi_connect() {
     saved_pass += char(EEPROM.read(i));
   }
   if (saved_ssid != "") {
-    WiFi.hostname("Smart Courtain");
+    Serial.println("Got WiFi ssid (" + String(saved_ssid) + "), beginning connection...");
+    
+    WiFi.hostname("Smart Curtain");
     WiFi.begin(saved_ssid.c_str(), saved_pass.c_str());
     WiFi.disconnect();
     //WiFi fix: https://github.com/esp8266/Arduino/issues/2186
     WiFi.persistent(false);
     WiFi.mode(WIFI_OFF);
+
+    Serial.println("Got to phase 1...");
     
     WiFi.mode(WIFI_STA);
-    WiFi.hostname("Smart Courtain");
+    WiFi.hostname("Smart Curtain");
     wifiMillis = millis();
     WiFi.begin(saved_ssid.c_str(), saved_pass.c_str());
+
+    Serial.println("Got to phase 2...");
     
     debugLog("Connecting to WiFi with:");
     debugLog("SSID: ", false);

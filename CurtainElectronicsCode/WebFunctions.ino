@@ -95,18 +95,21 @@ void sendWakeCall() {
 }
 
 void wakeRequest() {  
-  //String url = "http://gardin.albe.pw/api/curtain/wake_call.php?courtain_id=" + String(courtain_id) + "&wifi_ssid=" + saved_ssid.c_str() + "&ip=" + deviceIP + "&mac=" + deviceMAC + "&wifi_millis=" + String(wifiMillis);
-  String url = "http://gardin.albe.pw/api/curtain/wake_call.php";
+  String url = "http://gardin.albe.pw/api/curtain/wake_call.php?curtain_id=" + String(courtain_id) + "&wifi_ssid=" + saved_ssid.c_str() + "&ip=" + deviceIP + "&mac=" + deviceMAC + "&wifi_millis=" + String(wifiMillis) + "&api_key=" + String(apiKey);
+  //String url = "http://gardin.albe.pw/api/curtain/wake_call.php";
   
   JsonObject& request = WR.SendRequest(url, doSSL, thumbprint, "", "");
   bool theStatus = request["status"];
   String msg = request["message"];
 
   if (theStatus) {
-    /*if(updateSettings(request)) {
+    bool resetToAp = request["reset_to_ap"];
+    
+    if(resetToAp) {
       //Reset to AP
+      APSetup();
       return;
-    }*/
+    }
     debugLog("- Has access to internet & the Smart Courtain API, beginning loop\n\n");
     lastActivityMillis = millis();
 

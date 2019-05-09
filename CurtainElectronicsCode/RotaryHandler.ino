@@ -44,6 +44,8 @@ void TopReached() {
   StopRolling();
 }
 
+int lastNotMoved = 0;
+
 void RotaryLoop() {  
   long newPosition = myEnc.read();
   if (newPosition != oldPosition) {
@@ -104,23 +106,27 @@ void RotaryLoop() {
   }
 
   if (desiredPercentage != 999) {
-    if (desiredPercentage >= 0 && desiredPercentage <= 100) {
-      if (GetPercentage() > desiredPercentage) {
-        //Has to roll up to get to new desired percentage
-        rollDirection = "up";
-        StartRolling();
+    if (!isRolling) {
+      if (desiredPercentage >= 0 && desiredPercentage <= 100) {
+        if (GetPercentage() > desiredPercentage) {
+          //Has to roll up to get to new desired percentage
+          rollDirection = "up";
+          timesNotMoved = 0;
+          debugLog("- Starting roll up to reach desired percentage; " + String(desiredPercentage) + " (currently " + GetPercentage() + ")");
+          StartRolling();
+        } else {
+          //Has to roll down
+          timesNotMoved = 0;
+          debugLog("- Starting roll down to reach desired percentage; " + String(desiredPercentage) + " (currently " + GetPercentage() + ")");
+          rollDirection = "down";
+          StartRolling();
+        }
       } else {
-        //Has to roll down
-        rollDirection = "down";
-        StartRolling();
+        debugLog("New desired percentage (" + String(desiredPercentage) + ") is not between 0-100, resetting");
+        desiredPercentage = 999;
       }
     } else {
-      debugLog("New desired percentage is not between 0-100, resetting");
-      desiredPercentage = 999;
-    }
-
-    if (isRolling) {
-      /*if (rollDirection == "up") { <<<<<< TODO
+      /*if (rollDirection == "up") { <<<<<< TODO - slowly decrease speed
         if (GetPercentage() <= desiredPercentage + 10 && originalLastSpeed != 0) {
           //Slow down for the last few percents to get a more accurate run
           originalLastSpeed = motorSpeed;
@@ -149,7 +155,6 @@ void RotaryLoop() {
 
   if (isRolling && rollDirection == "up" && !movedThisTime) {
     //Is all the way up
-    timesNotMoved++;
     Serial.println("SUPERSONIC " + String(timesNotMoved));
     
     if (timesNotMoved > 25) {
@@ -160,9 +165,25 @@ void RotaryLoop() {
     }
   }
 
+  if (isRolling && !movedThisTime) {
+    if (timesNotMoved > 500) {
+      //Stop it
+      debugLog("Hasn't moved for " + String(timesNotMoved) + " loops. Resetting percentage for now, to allow web-request");
+      //desiredPercentage = GetPercentage();
+      StopRolling();
+    } else {
+      if (lastNotMoved + 50 <= timesNotMoved) {
+        //Doing this to prevent serial spam
+        debugLog("Not moving... (" + String(timesNotMoved) + ")");
+        lastNotMoved = timesNotMoved;
+      }
+      timesNotMoved++;
+    }
+  }
+
   movedThisTime = false;
 }
 
 void Calibrate() {
-  
+  //Todo - calibrate. Can be done manually through the API for now
 }
